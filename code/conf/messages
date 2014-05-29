@@ -4,5 +4,6 @@ playauthenticate.core.exception.provider_not_found=Provider {0} could not be fou
 playauthenticate.core.exception.merge.controller_undefined=Merge Call in resolver not properly defined, even though setting '{0}' is set to false!
 playauthenticate.core.exception.link.controller_undefined=Link Call in resolver not defined, even though setting '{0}' is set to false!
 playauthenticate.core.exception.oauth2.state_param_forged=The state parameter may have been tampered with!
+playauthenticate.core.exception.social_user_signin_failed=Unknown user
 
 playauthenticate.core.exception.general=Something went wrong
