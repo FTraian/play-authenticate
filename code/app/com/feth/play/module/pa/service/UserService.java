@@ -2,15 +2,17 @@ package com.feth.play.module.pa.service;
 
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
+import play.mvc.Http;
 
 public interface UserService {
 	
 	/**
 	 * Saves auth provider/id combination to a local user
 	 * @param authUser
-	 * @return The local identifying object or null if the user existed
+	 * @param request
+     * @return The local identifying object or null if the user existed
 	 */
-	public Object save(final AuthUser authUser);
+	public Object save(final AuthUser authUser, final Http.Session session, Http.Request request);
 
 	/**
 	 * Returns the local identifying object if the auth provider/id combination has been linked to a local user account already

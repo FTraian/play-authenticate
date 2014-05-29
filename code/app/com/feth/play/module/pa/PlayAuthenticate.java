@@ -1,7 +1,9 @@
 package com.feth.play.module.pa;
 
-import java.util.Date;
-
+import com.feth.play.module.pa.exceptions.AuthException;
+import com.feth.play.module.pa.providers.AuthProvider;
+import com.feth.play.module.pa.service.UserService;
+import com.feth.play.module.pa.user.AuthUser;
 import play.Configuration;
 import play.Logger;
 import play.Play;
@@ -13,10 +15,7 @@ import play.mvc.Http.Context;
 import play.mvc.Http.Session;
 import play.mvc.Result;
 
-import com.feth.play.module.pa.exceptions.AuthException;
-import com.feth.play.module.pa.providers.AuthProvider;
-import com.feth.play.module.pa.service.UserService;
-import com.feth.play.module.pa.user.AuthUser;
+import java.util.Date;
 
 public abstract class PlayAuthenticate {
 
@@ -379,7 +378,7 @@ public abstract class PlayAuthenticate {
 		} else {
 			// User declined link - create new user
 			try {
-				loginUser = signupUser(linkUser, context.session(), getProvider(linkUser.getProvider()));
+				loginUser = signupUser(linkUser, context.session(), getProvider(linkUser.getProvider()), context.request());
 			} catch (final AuthException e) {
 				return Controller.internalServerError(e.getMessage());
 			}
@@ -414,8 +413,8 @@ public abstract class PlayAuthenticate {
 		return loginAndRedirect(context, loginUser);
 	}
 
-	private static AuthUser signupUser(final AuthUser u, final Session session, final AuthProvider provider) throws AuthException {
-        final Object id = getUserService().save(u);
+	private static AuthUser signupUser(final AuthUser u, final Session session, final AuthProvider provider, final Http.Request request) throws AuthException {
+        final Object id = getUserService().save(u, session, request);
 		if (id == null) {
 			throw new AuthException(
 					Messages.get("playauthenticate.core.exception.signupuser_failed"));
@@ -528,8 +527,15 @@ public abstract class PlayAuthenticate {
 					}
 
 				} else if (!isLoggedIn) {
+                    if (session.get("signup").equals("false")){
+                        context.flash()
+                                .put("error",
+                                        Messages.get("playauthenticate.core.exception.social_user_signin_failed"));
+                        return Controller.redirect(PlayAuthenticate.getResolver().login().url());
+                    }
+                    session.remove("signup");
 					// 3. -> Signup
-					loginUser = signupUser(newUser, session, ap);
+					loginUser = signupUser(newUser, session, ap, context.request());
 				} else {
 					// !isLinked && isLoggedIn:
 
